@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify 
+from flask_cors import CORS
 import pandas as pd
 import requests
 from sklearn.linear_model import LinearRegression
@@ -7,7 +8,7 @@ from datetime import date, timedelta
 import os
 
 app = Flask(__name__)
-
+CORS(app)
 
 # =========================================================
 # HOME PAGE
