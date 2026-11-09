@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGRISIGHT | Agriculture Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f6f1;
+            color: #222;
+        }
+
+        /* Modern AGRISIGHT header */
+        header {
+            background: linear-gradient(135deg, #14532d, #166534, #22a447);
+            color: #ffffff;
+            text-align: center;
+            padding: 35px 20px;
+            border-radius: 0 0 18px 18px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(20, 83, 45, 0.2);
+        }
+
+        header h1 {
+            color: #ffffff;
+            font-size: 2.8rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin: 0 0 12px;
+        }
+
+        header p {
+            color: #e5fbe9;
+            font-size: 1.15rem;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 28px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h2 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        /* Crop Name uses the full row */
+        .form-row .form-group {
+            flex: 1 1 100%;
+            min-width: 0;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #2e7d32;
+        }
+
+        button {
+            margin-top: 18px;
+            margin-right: 10px;
+            padding: 13px 22px;
+            border: none;
+            border-radius: 8px;
+            background: #2e7d32;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1b5e20;
+        }
+
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8fbf8;
+            border-left: 5px solid #2e7d32;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result h3 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+
+        .error {
+            background: #fff3f3;
+            border-left-color: #d32f2f;
+            color: #b71c1c;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 18px;
+            text-align: center;
+        }
+
+        .stat h4 {
+            margin: 0 0 8px 0;
+            color: #555;
+        }
+
+        .stat p {
+            margin: 0;
+            font-size: 22px;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+
+        canvas {
+            width: 100%;
+            max-height: 400px;
+            margin-top: 25px;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .feature {
+            padding: 20px;
+            background: #f8fbf8;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+
+        .feature h3 {
+            color: #2e7d32;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+        }
+
+        .loading {
+            color: #555;
+            font-style: italic;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 28px 15px;
+            }
+
+            header h1 {
+                font-size: 2rem;
+                letter-spacing: 1px;
+            }
+
+            header p {
+                font-size: 1rem;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .form-group {
+                min-width: 100%;
+            }
+
+            button {
+                margin-right: 5px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>🌾 AGRISIGHT</h1>
+    <p>To help farmers provide information that they need.</p>
+</header>
+
+<div class="container">
+
+    <!-- CROP AND MARKET ANALYSIS -->
+
+    <div class="card">
+
+        <h2>🌱 Crop & Market Analysis</h2>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="crop">Crop Name</label>
+                <input
+                    type="text"
+                    id="crop"
+                    placeholder="Example: Maize"
+                >
+            </div>
+        </div>
+
+        <button onclick="getCropInfo()">
+            📚 Get Crop Information
+        </button>
+
+        <button onclick="analyzePrice()">
+            📈 Analyze Price Trend
+        </button>
+
+        <!-- Crop information result -->
+
+        <div id="cropResult" class="result">
+            <h3 id="cropTitle"></h3>
+            <p id="cropSummary"></p>
+        </div>
+
+        <!-- Price analysis result -->
+
+        <div id="priceResult" class="result">
+            <h3>📊 Price Analysis</h3>
+
+            <div class="stats">
+                <div class="stat">
+                    <h4>Average Price</h4>
+                    <p id="averagePrice">-</p>
+                </div>
+
+                <div class="stat">
+                    <h4>Maximum Price</h4>
+                    <p id="maximumPrice">-</p>
+                </div>
+
+                <div class="stat">
+                    <h4>Minimum Price</h4>
+                    <p id="minimumPrice">-</p>
+                </div>
+
+                <div class="stat">
+                    <h4>Latest Price</h4>
+                    <p id="latestPrice">-</p>
+                </div>
+
+                <div class="stat">
+                    <h4>Records</h4>
+                    <p id="recordCount">-</p>
+                </div>
+            </div>
+
+            <canvas id="priceChart"></canvas>
+        </div>
+
+    </div>
+
+    <!-- WEATHER SECTION -->
+
+    <div class="card">
+
+        <h2>🌦️ Weather Prediction</h2>
+
+        <div class="form-group">
+            <label for="city">City</label>
+            <input
+                type="text"
+                id="city"
+                placeholder="Example: Delhi"
+            >
+        </div>
+
+        <button onclick="getWeather()">
+            🌤️ Get Weather
+        </button>
+
+        <div id="weatherResult" class="result">
+            <h3>Current Weather</h3>
+
+            <div class="stats">
+                <div class="stat">
+                    <h4>Date</h4>
+                    <p id="weatherDate">-</p>
+                </div>
+
+                <div class="stat">
+                    <h4>Temperature</h4>
+                    <p id="weatherTemperature">-</p>
+                </div>
+
+                <div class="stat">
+                    <h4>Humidity</h4>
+                    <p id="weatherHumidity">-</p>
+                </div>
+
+                <div class="stat">
+                    <h4>Wind Speed</h4>
+                    <p id="weatherWind">-</p>
+                </div>
+
+                <div class="stat">
+                    <h4>Precipitation</h4>
+                    <p id="weatherRain">-</p>
+                </div>
+
+                <div class="stat">
+                    <h4>Sunrise</h4>
+                    <p id="weatherSunrise">-</p>
+                </div>
+
+                <div class="stat">
+                    <h4>Sunset</h4>
+                    <p id="weatherSunset">-</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top:30px;">
+                🤖 7-Day Temperature Prediction
+            </h3>
+
+            <canvas id="weatherChart"></canvas>
+        </div>
+
+    </div>
+
+    <!-- DASHBOARD FEATURES -->
+
+    <div class="card">
+
+        <h2>Dashboard Features</h2>
+
+        <div class="features">
+
+            <div class="feature">
+                <h3>📚 Crop Information</h3>
+                <p>
+                    Get information about crops using Wikipedia.
+                </p>
+            </div>
+
+            <div class="feature">
+                <h3>📈 Price Trends</h3>
+                <p>
+                    Analyze historical crop prices from your dataset.
+                </p>
+            </div>
+
+            <div class="feature">
+                <h3>🌤️ Weather Prediction</h3>
+                <p>
+                    Use historical weather data and machine learning
+                    to predict upcoming temperatures.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<footer>
+    AGRISIGHT © 2026
+</footer>
+
+<!-- JAVASCRIPT -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+let priceChart = null;
+let weatherChart = null;
+
+
+// Remove any leftover Location field from the Crop & Market Analysis card.
+(function removeCropLocationField() {
+    function removeLocationField() {
+        const cropCard = document.getElementById("crop")?.closest(".card");
+        if (!cropCard) return;
+
+        cropCard.querySelectorAll("label").forEach((label) => {
+            if (label.textContent.trim().toLowerCase() === "location") {
+                const group = label.closest(".form-group");
+                if (group) group.remove();
+            }
+        });
+    }
+
+    removeLocationField();
+    document.addEventListener("DOMContentLoaded", removeLocationField);
+})();
+
+
+// ========================================
+// CROP INFORMATION
+// ========================================
+
+async function getCropInfo() {
+
+    const crop = document
+        .getElementById("crop")
+        .value
+        .trim();
+
+    const result = document.getElementById("cropResult");
+
+    if (!crop) {
+        showError(result, "Please enter a crop name.");
+        return;
+    }
+
+    result.style.display = "block";
+    result.classList.remove("error");
+
+    document.getElementById("cropTitle").innerText = "Loading...";
+    document.getElementById("cropSummary").innerText =
+        "Getting crop information from Wikipedia...";
+
+    try {
+
+        const response = await fetch("/crop-info", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                crop: crop
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || data.error) {
+            showError(
+                result,
+                data.error || "Could not get crop information."
+            );
+            return;
+        }
+
+        result.classList.remove("error");
+
+        document.getElementById("cropTitle").innerText =
+            "📚 " + data.crop;
+
+        document.getElementById("cropSummary").innerText =
+            data.summary;
+
+    } catch (error) {
+
+        showError(result, "Could not connect to the server.");
+
+    }
+}
+
+
+// ========================================
+// PRICE ANALYSIS
+// ========================================
+
+async function analyzePrice() {
+
+    const crop = document
+        .getElementById("crop")
+        .value
+        .trim();
+
+    // Location is set automatically; no Location input is needed.
+    const location = "India";
+
+    const result = document.getElementById("priceResult");
+
+    if (!crop) {
+        result.style.display = "block";
+        result.classList.add("error");
+
+        result.innerHTML =
+            "<h3>Error</h3>" +
+            "<p>Please enter a crop name.</p>";
+
+        return;
+    }
+
+    result.style.display = "block";
+    result.classList.remove("error");
+
+    result.innerHTML = "<p>Loading price analysis...</p>";
+
+    try {
+
+        const response = await fetch("/price-analysis", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                crop: crop,
+                location: location
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || data.error) {
+            result.classList.add("error");
+
+            result.innerHTML =
+                "<h3>Error</h3>" +
+                "<p>" +
+                (data.error || "Could not analyze crop prices.") +
+                "</p>";
+
+            return;
+        }
+
+        result.classList.remove("error");
+
+        result.innerHTML = `
+            <h3>📊 Price Analysis</h3>
+
+            <div class="stats">
+                <div class="stat">
+                    <h4>Average Price</h4>
+                    <p id="averagePrice">${data.average}</p>
+                </div>
+
+                <div class="stat">
+                    <h4>Maximum Price</h4>
+                    <p id="maximumPrice">${data.maximum}</p>
+                </div>
+
+                <div class="stat">
+                    <h4>Minimum Price</h4>
+                    <p id="minimumPrice">${data.minimum}</p>
+                </div>
+
+                <div class="stat">
+                    <h4>Latest Price</h4>
+                    <p id="latestPrice">${data.latest}</p>
+                </div>
+
+                <div class="stat">
+                    <h4>Records</h4>
+                    <p id="recordCount">${data.records}</p>
+                </div>
+            </div>
+
+            <canvas id="priceChart"></canvas>
+        `;
+
+        const canvas = document.getElementById("priceChart");
+        const ctx = canvas.getContext("2d");
+
+        if (priceChart) {
+            priceChart.destroy();
+        }
+
+        priceChart = new Chart(ctx, {
+            type: "line",
+
+            data: {
+                labels: data.dates,
+
+                datasets: [{
+                    label: crop + " Price Trend",
+                    data: data.prices,
+                    borderWidth: 3,
+                    tension: 0.3,
+                    fill: false
+                }]
+            },
+
+            options: {
+                responsive: true,
+
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: "Price"
+                        }
+                    },
+
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Date"
+                        }
+                    }
+                }
+            }
+        });
+
+    } catch (error) {
+
+        result.classList.add("error");
+
+        result.innerHTML =
+            "<h3>Error</h3>" +
+            "<p>Could not connect to the server.</p>";
+
+    }
+}
+
+
+// ========================================
+// WEATHER
+// ========================================
+
+async function getWeather() {
+
+    const city = document
+        .getElementById("city")
+        .value
+        .trim();
+
+    const result = document.getElementById("weatherResult");
+
+    if (!city) {
+        result.style.display = "block";
+        result.classList.add("error");
+
+        result.innerHTML =
+            "<h3>Error</h3>" +
+            "<p>Please enter a city.</p>";
+
+        return;
+    }
+
+    result.style.display = "block";
+    result.classList.remove("error");
+
+    result.innerHTML = `
+        <h3>🌦️ Loading Weather...</h3>
+        <p>
+            Getting historical weather data
+            and calculating predictions...
+        </p>
+    `;
+
+    try {
+
+        const response = await fetch("/weather", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                city: city
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || data.error || data.success === false) {
+            result.classList.add("error");
+
+            result.innerHTML =
+                "<h3>Error</h3>" +
+                "<p>" +
+                (data.message || data.error ||
+                    "Could not get weather data.") +
+                "</p>";
+
+            return;
+        }
+
+        result.classList.remove("error");
+
+        const latest = data.latest;
+
+        result.innerHTML = `
+            <h3>
+                🌦️ Current Weather — ${data.city}
+            </h3>
+
+            <div class="stats">
+                <div class="stat">
+                    <h4>Date</h4>
+                    <p>${latest.date}</p>
+                </div>
+
+                <div class="stat">
+                    <h4>Temperature</h4>
+                    <p>${latest.temperature.toFixed(1)} °C</p>
+                </div>
+
+                <div class="stat">
+                    <h4>Humidity</h4>
+                    <p>
+                        ${latest.humidity !== null &&
+                          latest.humidity !== undefined
+                            ? latest.humidity.toFixed(1) + " %"
+                            : "N/A"}
+                    </p>
+                </div>
+
+                <div class="stat">
+                    <h4>Wind Speed</h4>
+                    <p>${latest.windspeed.toFixed(1)}</p>
+                </div>
+
+                <div class="stat">
+                    <h4>Precipitation</h4>
+                    <p>${latest.precipitation.toFixed(1)} mm</p>
+                </div>
+
+                <div class="stat">
+                    <h4>Sunrise</h4>
+                    <p>${latest.sunrise || "N/A"}</p>
+                </div>
+
+                <div class="stat">
+                    <h4>Sunset</h4>
+                    <p>${latest.sunset || "N/A"}</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top:30px;">
+                🤖 7-Day Temperature Prediction
+            </h3>
+
+            <canvas id="weatherChart"></canvas>
+        `;
+
+        const ctx = document
+            .getElementById("weatherChart")
+            .getContext("2d");
+
+        if (weatherChart) {
+            weatherChart.destroy();
+        }
+
+        weatherChart = new Chart(ctx, {
+            type: "line",
+
+            data: {
+                labels: data.dates,
+
+                datasets: [{
+                    label: "Predicted Temperature (°C)",
+                    data: data.predictions,
+                    borderWidth: 3,
+                    tension: 0.3,
+                    fill: false
+                }]
+            },
+
+            options: {
+                responsive: true,
+
+                scales: {
+                    y: {
+                        title: {
+                            display: true,
+                            text: "Temperature (°C)"
+                        }
+                    },
+
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Date"
+                        }
+                    }
+                }
+            }
+        });
+
+    } catch (error) {
+
+        result.classList.add("error");
+
+        result.innerHTML =
+            "<h3>Error</h3>" +
+            "<p>Could not connect to the Flask server.</p>";
+
+    }
+}
+
+
+// ========================================
+// ERROR HELPER
+// ========================================
+
+function showError(element, message) {
+
+    element.style.display = "block";
+    element.classList.add("error");
+
+    element.innerHTML = `
+        <h3>Error</h3>
+        <p>${message}</p>
+    `;
+}
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+INDEX
